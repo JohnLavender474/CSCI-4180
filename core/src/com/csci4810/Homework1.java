@@ -102,21 +102,24 @@ public class Homework1 extends ApplicationAdapter {
         public void drawLinesBasic(ShapeRenderer renderer) {
             renderer.setColor(fillColor);
             for (Line l : lines) {
-                float deltaX = l.x1 - l.x0;
-                float deltaY = l.y1 - l.y0;
-                if (deltaX > deltaY) {
-                    float m = deltaY / deltaX;
-                    for (int i = 0; i <= deltaX; i++) {
-                        float x = l.x0 + i;
-                        float y = Math.round(m * i + l.y0);
-                        renderer.rect(gridX + x * ppm, gridY + y * ppm, ppm, ppm);
+                float dx = l.x1 - l.x0;
+                float dy = l.y1 - l.y0;
+                float x = l.x0;
+                float y = l.y0;
+                float m;
+                if (dx > dy) {
+                    m = dy / dx;
+                    for (int i = 0; i <= dx; i++) {
+                        renderer.rect(gridX + x * ppm, gridY + Math.round(y) * ppm, ppm, ppm);
+                        x++;
+                        y += m;
                     }
                 } else {
-                    float m = deltaX / deltaY;
-                    for (int i = 0; i <= deltaY; i++) {
-                        float y = l.y0 + i;
-                        float x = Math.round(m * i + l.x0);
-                        renderer.rect(gridX + x * ppm, gridY + y * ppm, ppm, ppm);
+                    m = dx / dy;
+                    for (int i = 0; i <= dy; i++) {
+                        renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
+                        y++;
+                        x += m;
                     }
                 }
             }
