@@ -107,19 +107,24 @@ public class Homework1 extends ApplicationAdapter {
                 float x = l.x0;
                 float y = l.y0;
                 float m;
-                if (dx > dy) {
+                if (Math.abs(dx) > Math.abs(dy)) {
                     m = dy / dx;
-                    for (int i = 0; i <= dx; i++) {
+                    for (int i = 0; i <= Math.abs(dx); i++) {
                         renderer.rect(gridX + x * ppm, gridY + Math.round(y) * ppm, ppm, ppm);
                         x++;
                         y += m;
                     }
                 } else {
                     m = dx / dy;
-                    for (int i = 0; i <= dy; i++) {
+                    for (int i = 0; i <= Math.abs(dy); i++) {
                         renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
-                        y++;
-                        x += m;
+                        if (dy < 0f) {
+                            y--;
+                            x -= m;
+                        } else {
+                            y++;
+                            x += m;
+                        }
                     }
                 }
             }
@@ -151,17 +156,15 @@ public class Homework1 extends ApplicationAdapter {
     }
 
     public static final float PPM = 32f;
-    public static final int SCREEN_WIDTH = 20;
-    public static final int SCREEN_HEIGHT = 20;
-
-    public static final int GRID_WIDTH = 16;
-    public static final int GRID_HEIGHT = 14;
-
+    public static final int GRID_WIDTH = 160; // 16;
+    public static final int GRID_HEIGHT = 140; // 14;
+    // public static final int SCREEN_WIDTH = 200;
+    // public static final int SCREEN_HEIGHT = 200;
     public static final Color GRID_COLOR = Color.RED;
     public static final Color FILL_COLOR = Color.BLUE;
     public static final Color LINE_COLOR = Color.PURPLE;
 
-    public static final int NUM_LINES = 1;
+    public static final int NUM_LINES = 9;
 
     public Grid grid;
     public BitmapFont font;
@@ -175,21 +178,25 @@ public class Homework1 extends ApplicationAdapter {
         spriteBatch = new SpriteBatch();
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
-        viewport = new FitViewport(SCREEN_WIDTH * PPM, SCREEN_HEIGHT * PPM);
-        viewport.getCamera().position.x = SCREEN_WIDTH * PPM / 2f;
-        viewport.getCamera().position.y = SCREEN_HEIGHT * PPM / 2f;
+        viewport = new FitViewport(GRID_WIDTH * PPM, GRID_HEIGHT * PPM);
+        viewport.getCamera().position.x = GRID_WIDTH * PPM / 2f;
+        viewport.getCamera().position.y = GRID_HEIGHT * PPM / 2f;
+        /*
         float x = (float) SCREEN_WIDTH / (float) GRID_WIDTH;
         float y = (float) SCREEN_HEIGHT / (float) GRID_HEIGHT;
+         */
+        float x = 0f;
+        float y = 0f;
         grid = new Grid(PPM, x * PPM, y * PPM, GRID_WIDTH, GRID_HEIGHT, GRID_COLOR, FILL_COLOR, LINE_COLOR);
 
+        /*
         grid.add(new Line(3, 3, 7, 5));
         grid.add(new Line(3, 12, 8, 7));
         grid.add(new Line(9, 5, 9, 1));
         grid.add(new Line(11, 5, 13, 13));
         grid.add(new Line(1, 1, 6, 1));
+         */
 
-        // TODO: randomly generate lines
-        /*
         for (int i = 0; i < NUM_LINES; i++) {
             int x0 = Utils.getRand(0, grid.width);
             int y0 = Utils.getRand(0, grid.height);
@@ -197,7 +204,6 @@ public class Homework1 extends ApplicationAdapter {
             int y1 = Utils.getRand(0, grid.height);
             grid.add(new Line(x0, y0, x1, y1));
         }
-         */
     }
 
     @Override
@@ -209,15 +215,17 @@ public class Homework1 extends ApplicationAdapter {
         ScreenUtils.clear(Color.BLACK);
 
         // render text
+        /*
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
         spriteBatch.begin();
         grid.drawGridLabels(spriteBatch, font);
         spriteBatch.end();
+         */
 
         // render lines
         renderer.setProjectionMatrix(viewport.getCamera().combined);
         renderer.begin(ShapeRenderer.ShapeType.Line);
-        grid.drawGrid(renderer);
+        // grid.drawGrid(renderer);
         renderer.set(ShapeRenderer.ShapeType.Filled);
         grid.drawLinesBasic(renderer);
         // grid.drawLinesBresenham(renderer);
