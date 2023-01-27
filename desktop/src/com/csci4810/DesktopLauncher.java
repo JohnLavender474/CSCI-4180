@@ -8,7 +8,7 @@ public class DesktopLauncher {
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         config.setForegroundFPS(60);
         config.setTitle("CSCI 4810");
-        config.setWindowedMode(512, 480);
+        config.setWindowedMode(1920, 1080);
         new Lwjgl3Application(new Homework1(), config);
     }
 }
