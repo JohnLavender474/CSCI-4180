@@ -4,12 +4,13 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.csci4810.utils.UtilMethods;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class Homework1 extends ApplicationAdapter {
             lines.add(line);
         }
 
-        public void drawDirectLines(ShapeRenderer renderer) {
+        public void drawAnalogLines(ShapeRenderer renderer) {
             renderer.setColor(lineColor);
             for (Line l : lines) {
                 float offset = ppm / 2f;
@@ -171,38 +172,37 @@ public class Homework1 extends ApplicationAdapter {
 
     }
 
-    public static final float PPM = 32f;
+    private static final Color GRID_COLOR = Color.PURPLE;
+    private static final Color FILL_COLOR = Color.BLUE;
+    private static final Color LINE_COLOR = Color.RED;
 
-    public static final int GRID_WIDTH = 16;
-    public static final int GRID_HEIGHT = 14;
+    private Grid grid;
+    private Viewport viewport;
+    private ShapeRenderer renderer;
 
-    public static final Color GRID_COLOR = Color.PURPLE;
-    public static final Color FILL_COLOR = Color.BLUE;
-    public static final Color LINE_COLOR = Color.RED;
-
-    public static final int NUM_LINES = 3;
-
-    public Grid grid;
-    public BitmapFont font;
-    public Viewport viewport;
-    public ShapeRenderer renderer;
-    public SpriteBatch spriteBatch;
+    private boolean drawBresenham;
+    private boolean drawAnalog;
 
     @Override
     public void create() {
-        font = new BitmapFont();
-        spriteBatch = new SpriteBatch();
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("HW1_input.json"));
+        int ppm = json.getInt("ppm");
+        int gridWidth = json.getInt("gridWidth");
+        int gridHeight = json.getInt("gridHeight");
+        int numLines = json.getInt("numLines");
+        drawBresenham = json.getBoolean("drawBresenham");
+        drawAnalog = json.getBoolean("drawAnalog");
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
-        viewport = new FitViewport(GRID_WIDTH * PPM, GRID_HEIGHT * PPM);
-        viewport.getCamera().position.x = GRID_WIDTH * PPM / 2f;
-        viewport.getCamera().position.y = GRID_HEIGHT * PPM / 2f;
-        grid = new Grid(PPM, 0f, 0f, GRID_WIDTH, GRID_HEIGHT, GRID_COLOR, FILL_COLOR, LINE_COLOR);
-        for (int i = 0; i < NUM_LINES; i++) {
-            int x0 = Utils.getRand(0, grid.width);
-            int y0 = Utils.getRand(0, grid.height);
-            int x1 = Utils.getRand(0, grid.width);
-            int y1 = Utils.getRand(0, grid.height);
+        viewport = new FitViewport(gridWidth * ppm, gridHeight * ppm);
+        viewport.getCamera().position.x = gridWidth * ppm / 2f;
+        viewport.getCamera().position.y = gridHeight * ppm / 2f;
+        grid = new Grid(ppm, 0f, 0f, gridWidth, gridHeight, GRID_COLOR, FILL_COLOR, LINE_COLOR);
+        for (int i = 0; i < numLines; i++) {
+            int x0 = UtilMethods.getRand(0, grid.width);
+            int y0 = UtilMethods.getRand(0, grid.height);
+            int x1 = UtilMethods.getRand(0, grid.width);
+            int y1 = UtilMethods.getRand(0, grid.height);
             grid.add(new Line(x0, y0, x1, y1));
         }
     }
@@ -214,12 +214,16 @@ public class Homework1 extends ApplicationAdapter {
         }
         ScreenUtils.clear(Color.BLACK);
         renderer.setProjectionMatrix(viewport.getCamera().combined);
-        renderer.begin(ShapeRenderer.ShapeType.Line);
-        renderer.set(ShapeRenderer.ShapeType.Filled);
-        // grid.drawLinesBasic(renderer);
-        grid.drawLinesBresenham(renderer);
-        renderer.set(ShapeRenderer.ShapeType.Line);
-        grid.drawDirectLines(renderer);
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+        if (drawBresenham) {
+            grid.drawLinesBresenham(renderer);
+        } else {
+            grid.drawLinesBasic(renderer);
+        }
+        if (drawAnalog) {
+            renderer.set(ShapeRenderer.ShapeType.Line);
+            grid.drawAnalogLines(renderer);
+        }
         renderer.end();
 
         viewport.apply();

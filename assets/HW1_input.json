@@ -1,0 +1,8 @@
+{
+  "ppm": 32,
+  "gridWidth": 10,
+  "gridHeight": 10,
+  "numLines": 1,
+  "drawBresenham": true,
+  "drawAnalog": true
+}
