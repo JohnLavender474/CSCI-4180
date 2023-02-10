@@ -1,0 +1,11 @@
+{
+  "ppm": 32,
+  "gridWidth": 1000,
+  "gridHeight": 1000,
+  "numRandomLines": 10,
+  "renderLines": true,
+  "drawBresenham": true,
+  "drawAnalog": false,
+  "printTime": false,
+  "renderTimes": 0
+}

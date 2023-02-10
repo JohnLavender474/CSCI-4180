@@ -1,4 +1,4 @@
-package com.csci4810.utils;
+package com.csci4810;
 
 import java.util.Random;
 

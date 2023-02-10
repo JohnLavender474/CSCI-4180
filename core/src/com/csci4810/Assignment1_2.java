@@ -10,12 +10,11 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import com.csci4810.utils.UtilMethods;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Homework1 extends ApplicationAdapter {
+public class Assignment1_2 extends ApplicationAdapter {
 
     public static class Line {
 
@@ -51,9 +50,11 @@ public class Homework1 extends ApplicationAdapter {
         public final Color fillColor;
         public final Color lineColor;
         public final List<Line> lines;
+        public final ShapeRenderer renderer;
 
-        public Grid(float ppm, float gridX, float gridY, int width, int height,
+        public Grid(ShapeRenderer renderer, float ppm, float gridX, float gridY, int width, int height,
                     Color gridColor, Color fillColor, Color lineColor) {
+            this.renderer = renderer;
             this.ppm = ppm;
             this.gridX = gridX;
             this.gridY = gridY;
@@ -69,21 +70,27 @@ public class Homework1 extends ApplicationAdapter {
             lines.add(line);
         }
 
-        public void drawAnalogLines(ShapeRenderer renderer) {
-            renderer.setColor(lineColor);
+        public void drawAnalogLines(boolean render) {
+            if (render) {
+                renderer.setColor(lineColor);
+            }
             for (Line l : lines) {
                 float offset = ppm / 2f;
-                renderer.line(
-                        gridX + l.x0 * ppm + offset,
-                        gridY + l.y0 * ppm + offset,
-                        gridX + l.x1 * ppm + offset,
-                        gridY + l.y1 * ppm + offset
-                );
+                if (render) {
+                    renderer.line(
+                            gridX + l.x0 * ppm + offset,
+                            gridY + l.y0 * ppm + offset,
+                            gridX + l.x1 * ppm + offset,
+                            gridY + l.y1 * ppm + offset
+                    );
+                }
             }
         }
 
-        public void drawLinesBasic(ShapeRenderer renderer) {
-            renderer.setColor(fillColor);
+        public void drawLinesBasic(boolean render) {
+            if (render) {
+                renderer.setColor(fillColor);
+            }
             for (Line l : lines) {
                 float dx = l.x1 - l.x0;
                 float dy = l.y1 - l.y0;
@@ -93,14 +100,18 @@ public class Homework1 extends ApplicationAdapter {
                 if (Math.abs(dx) > Math.abs(dy)) {
                     m = dy / dx;
                     for (int i = 0; i <= Math.abs(dx); i++) {
-                        renderer.rect(gridX + x * ppm, gridY + Math.round(y) * ppm, ppm, ppm);
+                        if (render) {
+                            renderer.rect(gridX + x * ppm, gridY + Math.round(y) * ppm, ppm, ppm);
+                        }
                         x++;
                         y += m;
                     }
                 } else {
                     m = dx / dy;
                     for (int i = 0; i <= Math.abs(dy); i++) {
-                        renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
+                        if (render) {
+                            renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
+                        }
                         if (dy < 0f) {
                             y--;
                             x -= m;
@@ -113,8 +124,10 @@ public class Homework1 extends ApplicationAdapter {
             }
         }
 
-        public void drawLinesBresenham(ShapeRenderer renderer) {
-            renderer.setColor(fillColor);
+        public void drawLinesBresenham(boolean render) {
+            if (render) {
+                renderer.setColor(fillColor);
+            }
             for (Line l : lines) {
                 int x0 = l.x0;
                 int y0 = l.y0;
@@ -156,7 +169,9 @@ public class Homework1 extends ApplicationAdapter {
                 int i = 0;
                 while (i <= longest) {
                     i++;
-                    renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
+                    if (render) {
+                        renderer.rect(gridX + Math.round(x) * ppm, gridY + y * ppm, ppm, ppm);
+                    }
                     num += shortest;
                     if (num >= longest) {
                         num -= longest;
@@ -179,32 +194,52 @@ public class Homework1 extends ApplicationAdapter {
     private Grid grid;
     private Viewport viewport;
     private ShapeRenderer renderer;
-
+    private boolean renderLines;
     private boolean drawBresenham;
     private boolean drawAnalog;
+    private boolean printTime;
+    private int renderTimes;
+    private int renderCount;
+    private List<Long> renderRecords;
 
     @Override
     public void create() {
-        JsonValue json = new JsonReader().parse(Gdx.files.internal("HW1_input.json"));
+        renderRecords = new ArrayList<>();
+        JsonValue json = new JsonReader().parse(Gdx.files.internal("Assignment1_2_Input.json"));
         int ppm = json.getInt("ppm");
         int gridWidth = json.getInt("gridWidth");
         int gridHeight = json.getInt("gridHeight");
-        int numLines = json.getInt("numLines");
+        int numRandomLines = json.getInt("numRandomLines");
+        renderLines = json.getBoolean("renderLines");
         drawBresenham = json.getBoolean("drawBresenham");
         drawAnalog = json.getBoolean("drawAnalog");
+        printTime = json.getBoolean("printTime");
+        renderTimes = json.getInt("renderTimes");
         renderer = new ShapeRenderer();
         renderer.setAutoShapeType(true);
         viewport = new FitViewport(gridWidth * ppm, gridHeight * ppm);
         viewport.getCamera().position.x = gridWidth * ppm / 2f;
         viewport.getCamera().position.y = gridHeight * ppm / 2f;
-        grid = new Grid(ppm, 0f, 0f, gridWidth, gridHeight, GRID_COLOR, FILL_COLOR, LINE_COLOR);
-        for (int i = 0; i < numLines; i++) {
+        grid = new Grid(renderer, ppm, 0f, 0f, gridWidth, gridHeight, GRID_COLOR, FILL_COLOR, LINE_COLOR);
+        for (int i = 0; i < numRandomLines; i++) {
             int x0 = UtilMethods.getRand(0, grid.width);
             int y0 = UtilMethods.getRand(0, grid.height);
             int x1 = UtilMethods.getRand(0, grid.width);
             int y1 = UtilMethods.getRand(0, grid.height);
             grid.add(new Line(x0, y0, x1, y1));
         }
+
+        // hard-coded lines:
+        /*
+        grid.add(new Line(0, 50, 10, 0));
+        grid.add(new Line(50, 100, 500, 475));
+        grid.add(new Line(600, 3, 100, 75));
+        grid.add(new Line(0, 0, 50, 0));
+        grid.add(new Line(0, 0, 0, 50));
+        grid.add(new Line(450, 500, 200, 100));
+        grid.add(new Line(250, 250, 100, 80));
+        grid.add(new Line(500, 500, 200, 100));
+         */
     }
 
     @Override
@@ -215,18 +250,36 @@ public class Homework1 extends ApplicationAdapter {
         ScreenUtils.clear(Color.BLACK);
         renderer.setProjectionMatrix(viewport.getCamera().combined);
         renderer.begin(ShapeRenderer.ShapeType.Filled);
+        long start = System.nanoTime();
         if (drawBresenham) {
-            grid.drawLinesBresenham(renderer);
+            grid.drawLinesBresenham(renderLines);
         } else {
-            grid.drawLinesBasic(renderer);
+            grid.drawLinesBasic(renderLines);
+        }
+        long end = System.nanoTime();
+        if (printTime) {
+            long time = end - start;
+            renderRecords.add(time);
         }
         if (drawAnalog) {
             renderer.set(ShapeRenderer.ShapeType.Line);
-            grid.drawAnalogLines(renderer);
+            grid.drawAnalogLines(renderLines);
         }
         renderer.end();
-
         viewport.apply();
+        if (renderTimes > 0) {
+            renderCount++;
+            if (renderCount >= renderTimes) {
+                float avg = 0f;
+                for (long l : renderRecords) {
+                    avg += l;
+                }
+                avg /= (float) renderRecords.size();
+                System.out.println("Render records: " + renderRecords);
+                System.out.println("Average: " + avg);
+                Gdx.app.exit();
+            }
+        }
     }
 
     @Override
