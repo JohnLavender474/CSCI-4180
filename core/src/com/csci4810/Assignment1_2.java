@@ -16,14 +16,14 @@ import java.util.List;
 
 public class Assignment1_2 extends ApplicationAdapter {
 
-    public static class Line {
+    private static class Line {
 
         public final int x0;
         public final int y0;
         public final int x1;
         public final int y1;
 
-        public Line(int x0, int y0, int x1, int y1) {
+        private Line(int x0, int y0, int x1, int y1) {
             if (x0 < x1) {
                 this.x0 = x0;
                 this.y0 = y0;
@@ -39,28 +39,26 @@ public class Assignment1_2 extends ApplicationAdapter {
 
     }
 
-    public static class Grid {
+    private static class Grid {
 
-        public final float ppm;
-        public final int width;
-        public final int height;
-        public final float gridX;
-        public final float gridY;
-        public final Color gridColor;
-        public final Color fillColor;
-        public final Color lineColor;
-        public final List<Line> lines;
-        public final ShapeRenderer renderer;
+        private final float ppm;
+        private final int width;
+        private final int height;
+        private final float gridX;
+        private final float gridY;
+        private final Color fillColor;
+        private final Color lineColor;
+        private final List<Line> lines;
+        private final ShapeRenderer renderer;
 
-        public Grid(ShapeRenderer renderer, float ppm, float gridX, float gridY, int width, int height,
-                    Color gridColor, Color fillColor, Color lineColor) {
+        private Grid(ShapeRenderer renderer, float ppm, float gridX, float gridY, int width, int height,
+                    Color fillColor, Color lineColor) {
             this.renderer = renderer;
             this.ppm = ppm;
             this.gridX = gridX;
             this.gridY = gridY;
             this.width = width;
             this.height = height;
-            this.gridColor = gridColor;
             this.fillColor = fillColor;
             this.lineColor = lineColor;
             lines = new ArrayList<>();
@@ -187,7 +185,6 @@ public class Assignment1_2 extends ApplicationAdapter {
 
     }
 
-    private static final Color GRID_COLOR = Color.PURPLE;
     private static final Color FILL_COLOR = Color.BLUE;
     private static final Color LINE_COLOR = Color.RED;
 
@@ -220,7 +217,7 @@ public class Assignment1_2 extends ApplicationAdapter {
         viewport = new FitViewport(gridWidth * ppm, gridHeight * ppm);
         viewport.getCamera().position.x = gridWidth * ppm / 2f;
         viewport.getCamera().position.y = gridHeight * ppm / 2f;
-        grid = new Grid(renderer, ppm, 0f, 0f, gridWidth, gridHeight, GRID_COLOR, FILL_COLOR, LINE_COLOR);
+        grid = new Grid(renderer, ppm, 0f, 0f, gridWidth, gridHeight, FILL_COLOR, LINE_COLOR);
         for (int i = 0; i < numRandomLines; i++) {
             int x0 = UtilMethods.getRand(0, grid.width);
             int y0 = UtilMethods.getRand(0, grid.height);
@@ -228,7 +225,6 @@ public class Assignment1_2 extends ApplicationAdapter {
             int y1 = UtilMethods.getRand(0, grid.height);
             grid.add(new Line(x0, y0, x1, y1));
         }
-
         // hard-coded lines:
         /*
         grid.add(new Line(0, 50, 10, 0));
